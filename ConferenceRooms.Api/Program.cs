@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ConferenceRooms.Api.Data;
 using ConferenceRooms.Api.Repositories;
 using ConferenceRooms.Api.Services;
+using ConferenceRooms.Api.Domain.Pricing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +25,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IRoomAppService, RoomAppService>();
 
+builder.Services.AddSingleton<IPricingService, PricingService>();
+
 var app = builder.Build();
+
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+    DbSeeder.Seed(db);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -43,6 +43,15 @@ public class RoomsController : ControllerBase
         RoomDto roomDto = await _service.CreateAsync(request);
         return CreatedAtAction(nameof(GetById), new { id = roomDto.Id }, roomDto);
     }
+
+    // POST: api/rooms/{id}/services
+    [HttpPost("{id}/services")]
+    public async Task<ActionResult<RoomServiceDto>> AddService(int id, CreateRoomServiceRequest request)
+    {
+        RoomServiceDto? serviceDto = await _service.AddServiceAsync(id, request);
+        return serviceDto is null ? NotFound() : CreatedAtAction(nameof(GetById), new { id }, serviceDto);
+    }
+
     // PUT: api/rooms/{id}
     [HttpPut("{id}")]
     public async Task<ActionResult<RoomDto>> Update(int id, UpdateRoomRequest request)

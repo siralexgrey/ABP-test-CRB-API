@@ -15,12 +15,14 @@ public class RoomRepository : IRoomRepository
 
     public Task<List<Room>> GetAllAsync()
     {
-        return _db.Rooms.ToListAsync();
+        return _db.Rooms
+            .Include(room => room.Services)
+            .ToListAsync();
     }
 
     public async Task<Room?> GetByIdAsync(int id)
     {
-        return await _db.Rooms.FindAsync(id);
+        return await _db.Rooms.Include(room => room.Services).FirstOrDefaultAsync(room => room.Id == id);
     }
 
     public void Add(Room room)
@@ -46,6 +48,7 @@ public class RoomRepository : IRoomRepository
     public Task<List<Room>> GetAvailableAsync(DateTime start, DateTime end, int minCapacity)
     {
         return _db.Rooms
+            .Include(room => room.Services)
             .Where(room =>
                 room.Capacity >= minCapacity
                 && !room.Bookings.Any(booking => booking.StartTime < end && start < booking.EndTime)

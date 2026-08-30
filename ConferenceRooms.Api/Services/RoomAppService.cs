@@ -30,6 +30,9 @@ public class RoomAppService : IRoomAppService
             BasePricePerHour = request.BasePricePerHour
         };
 
+        foreach (CreateRoomServiceRequest service in request.Services ?? [])
+            room.Services.Add(new RoomService {Name = service.Name, Price = service.Price});
+
         _repo.Add(room);
         await _repo.SaveChangesAsync();
         return ToDto(room);
@@ -59,8 +62,19 @@ public class RoomAppService : IRoomAppService
         return rooms.Select(ToDto).ToList();
     }
 
+    public async Task<RoomServiceDto?> AddServiceAsync(int roomId, CreateRoomServiceRequest request)
+    {
+        Room? room = await _repo.GetByIdAsync(roomId);
+        if (room is null) return null;
+        RoomService service = new() { Name = request.Name, Price = request.Price };
+        room.Services.Add(service);
+        await _repo.SaveChangesAsync();
+        return new RoomServiceDto(service.Id, service.Name, service.Price);
+    }
+
     private static RoomDto ToDto(Room room)
     {
-        return new RoomDto(room.Id, room.Name, room.Capacity, room.BasePricePerHour);
+        List<RoomServiceDto> services = room.Services.Select(service => new RoomServiceDto(service.Id, service.Name, service.Price)).ToList();
+        return new RoomDto(room.Id, room.Name, room.Capacity, room.BasePricePerHour, services);
     }
 }
