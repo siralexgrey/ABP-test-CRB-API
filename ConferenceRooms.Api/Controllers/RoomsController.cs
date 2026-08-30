@@ -29,6 +29,13 @@ public class RoomsController : ControllerBase
         return roomDto is null ? NotFound() : roomDto;
     }
 
+    // GET: api/rooms/available?start={start}&end={end}&minCapacity={minCapacity}
+    [HttpGet("available")]
+    public async Task<ActionResult<List<RoomDto>>> GetAvailable([FromQuery] DateTime start, [FromQuery] DateTime end, [FromQuery] int minCapacity)
+    {
+        return await _service.GetAvailableAsync(start, end, minCapacity);
+    }
+
     // POST: api/rooms
     [HttpPost]
     public async Task<ActionResult<RoomDto>> Create(CreateRoomRequest request)

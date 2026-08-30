@@ -9,4 +9,5 @@ public interface IRoomAppService
     Task<RoomDto> CreateAsync(CreateRoomRequest request);
     Task<RoomDto?> UpdateAsync(int id, UpdateRoomRequest request);
     Task<bool> DeleteAsync(int id);
+    Task<List<RoomDto>> GetAvailableAsync(DateTime start, DateTime end, int minCapacity);
 }

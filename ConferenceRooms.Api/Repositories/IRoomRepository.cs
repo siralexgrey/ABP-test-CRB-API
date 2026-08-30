@@ -10,4 +10,5 @@ public interface IRoomRepository
     void Update(Room room);
     void Remove(Room room);
     Task SaveChangesAsync();
+    Task<List<Room>> GetAvailableAsync(DateTime start, DateTime end, int minCapacity);
 }

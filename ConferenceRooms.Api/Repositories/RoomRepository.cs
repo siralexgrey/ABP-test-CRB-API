@@ -42,4 +42,14 @@ public class RoomRepository : IRoomRepository
     {
         return _db.SaveChangesAsync();
     }
+
+    public Task<List<Room>> GetAvailableAsync(DateTime start, DateTime end, int minCapacity)
+    {
+        return _db.Rooms
+            .Where(room =>
+                room.Capacity >= minCapacity
+                && !room.Bookings.Any(booking => booking.StartTime < end && start < booking.EndTime)
+            )
+            .ToListAsync();
+    }
 }

@@ -53,6 +53,12 @@ public class RoomAppService : IRoomAppService
         return true;
     }
 
+    public async Task<List<RoomDto>> GetAvailableAsync(DateTime start, DateTime end, int minCapacity)
+    {
+        List<Room> rooms = await _repo.GetAvailableAsync(start, end, minCapacity);
+        return rooms.Select(ToDto).ToList();
+    }
+
     private static RoomDto ToDto(Room room)
     {
         return new RoomDto(room.Id, room.Name, room.Capacity, room.BasePricePerHour);
