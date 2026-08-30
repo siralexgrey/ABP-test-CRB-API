@@ -1,4 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+using ConferenceRooms.Api.Data;
+using ConferenceRooms.Api.Repositories;
+using ConferenceRooms.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("Default");
 
 // Add services to the container.
 
@@ -8,6 +15,14 @@ builder.Services.AddOpenApi(options =>
 {
     options.AddSchemaTransformer<IntSchemaFixTransformer>();
 });
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlite(connectionString);
+});
+
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IRoomAppService, RoomAppService>();
 
 var app = builder.Build();
 

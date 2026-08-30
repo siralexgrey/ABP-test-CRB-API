@@ -1,0 +1,45 @@
+using Microsoft.EntityFrameworkCore;
+using ConferenceRooms.Api.Models;
+using ConferenceRooms.Api.Data;
+
+namespace ConferenceRooms.Api.Repositories;
+
+public class RoomRepository : IRoomRepository
+{
+    private readonly AppDbContext _db;
+
+    public RoomRepository(AppDbContext db)
+    {
+        _db = db;
+    }
+
+    public Task<List<Room>> GetAllAsync()
+    {
+        return _db.Rooms.ToListAsync();
+    }
+
+    public async Task<Room?> GetByIdAsync(int id)
+    {
+        return await _db.Rooms.FindAsync(id);
+    }
+
+    public void Add(Room room)
+    {
+        _db.Rooms.Add(room);
+    }
+
+    public void Update(Room room)
+    {
+        _db.Rooms.Update(room);
+    }
+
+    public void Remove(Room room)
+    {
+        _db.Rooms.Remove(room);
+    }
+
+    public Task SaveChangesAsync()
+    {
+        return _db.SaveChangesAsync();
+    }
+}
