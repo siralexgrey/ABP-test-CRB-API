@@ -19,16 +19,16 @@ public class PricingService : IPricingService
         {
             DateTime nextBoundary = NextBoundaryAfter(cursor);
             DateTime segmentEnd = nextBoundary < end ? nextBoundary : end;
-            decimal hours = (decimal)(segmentEnd - cursor).TotalHours;
+            decimal hours = (decimal)(segmentEnd - cursor).Ticks / TimeSpan.TicksPerHour;
             decimal multiplier = MultiplierAt(TimeOnly.FromDateTime(cursor));
-            decimal amount = hours * basePricePerHour * multiplier;
+            decimal amount = Math.Round(hours * basePricePerHour * multiplier, 2, MidpointRounding.AwayFromZero);
 
-            segments.Add(new PriceSegment(cursor, segmentEnd,hours, multiplier, amount));
+            segments.Add(new PriceSegment(cursor, segmentEnd, Math.Round(hours, 2), multiplier, amount));
             rentalTotal += amount;
             cursor = segmentEnd;
         }
 
-        var servicesTotal = servicePrices.Sum();
+        decimal servicesTotal = Math.Round(servicePrices.Sum(), 2, MidpointRounding.AwayFromZero);
         return new PriceBreakdown(rentalTotal, servicesTotal, rentalTotal + servicesTotal, segments);
     }
 

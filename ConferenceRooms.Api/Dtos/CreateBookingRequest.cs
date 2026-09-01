@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace ConferenceRooms.Api.Dtos;
 
 public record CreateBookingRequest(
-    [property: Range(1, int.MaxValue)] int RoomId,
+    [Range(1, int.MaxValue)] int RoomId,
     DateTime StartTime,
     TimeSpan Duration,
     IReadOnlyList<int>? ServiceIds
