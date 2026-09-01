@@ -37,7 +37,7 @@ dotnet test        # run the test suite
 | `POST` | `/api/rooms` | Create a room. Services can be supplied inline. |
 | `POST` | `/api/rooms/{id}/services` | Add one service to a room. `404` if the room is missing. |
 | `PUT` | `/api/rooms/{id}` | Update a room's scalar fields. `404` if missing. |
-| `DELETE` | `/api/rooms/{id}` | Delete a room. |
+| `DELETE` | `/api/rooms/{id}` | Delete a room. `404` if missing, `409` if it has bookings. |
 
 ### Bookings
 
@@ -90,8 +90,8 @@ Migrations/    EF Core migrations.
   already taken. Convention borrowed from ABP Framework.
 - **`GlobalExceptionHandler`** (`IExceptionHandler`) maps domain exceptions to status
   codes and RFC 7807 `ProblemDetails`: `NotFoundException → 404`,
-  `OverlapException → 409`, everything else → `500` with a generic body (logged
-  server-side).
+  `OverlapException → 409`, `ConflictException → 409`, everything else → `500` with a
+  generic body (logged server-side).
 - **`IntSchemaFixTransformer`** works around a .NET 10 OpenAPI generator quirk where
   integer path parameters are emitted as a `["integer","string"]` union, which the
   Swagger UI parameter validator mishandles. It only touches the generated document,
@@ -172,9 +172,11 @@ doesn't retroactively alter an existing booking.
    is listed under Next steps.
 6. **`PriceBreakdown` is serialized directly** from the domain result rather than mapped
    to a dedicated response DTO, to expose the full zone breakdown with no extra mapping.
-7. **Error signalling is deliberately asymmetric.** Room mutations use nullable returns
-   from the service (one failure mode: not found). Booking creation uses typed
-   exceptions (three: room not found, unknown service, time overlap).
+7. **Error signalling is deliberately asymmetric.** Room mutations mostly use nullable
+   returns from the service (not found); `DeleteAsync` additionally throws
+   `ConflictException` when the room has bookings (`Booking → Room` FK is `Restrict`,
+   caught as `DbUpdateException`). Booking creation uses typed exceptions throughout
+   (three: room not found, unknown service, time overlap).
 8. **`RoomService` is per-room**, not a global catalog — each room owns its service rows
    and prices. Services are supplied inline on create, or added one at a time via
    `POST /api/rooms/{id}/services`. Full collection reconciliation on `PUT` is out of
@@ -240,8 +242,6 @@ API. Run HTTP-only instead? Point the proxy at `http://localhost:5006`. Detail i
 - `RoomService` reconciliation on `PUT` (add / update / remove by id) and `409` when
   removing a service referenced by a booking (`BookingService → RoomService` FK is
   `Restrict`).
-- `409` on `DELETE /api/rooms/{id}` when the room has bookings (currently surfaces as an
-  unhandled `500`).
 - Persist the price breakdown (segments) so `GET /api/bookings/{id}` returns stored
   numbers instead of recomputing.
 - Exhaustive pricing tests (current coverage is key cases, not exhaustive).

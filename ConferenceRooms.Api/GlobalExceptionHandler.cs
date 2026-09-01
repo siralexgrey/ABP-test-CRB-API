@@ -22,6 +22,8 @@ public class GlobalExceptionHandler : IExceptionHandler
 
             OverlapException => (StatusCodes.Status409Conflict, "Conflict"),
 
+            ConflictException => (StatusCodes.Status409Conflict, "Conflict"),
+
             _ => (StatusCodes.Status500InternalServerError, "Internal Server Error")
         };
 

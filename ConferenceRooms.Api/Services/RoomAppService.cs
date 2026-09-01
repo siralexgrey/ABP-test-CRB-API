@@ -1,6 +1,8 @@
 using ConferenceRooms.Api.Dtos;
+using ConferenceRooms.Api.Exceptions;
 using ConferenceRooms.Api.Models;
 using ConferenceRooms.Api.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConferenceRooms.Api.Services;
 
@@ -52,7 +54,14 @@ public class RoomAppService : IRoomAppService
         Room? room = await _repo.GetByIdAsync(id);
         if (room is null) return false;
         _repo.Remove(room);
-        await _repo.SaveChangesAsync();
+        try
+        {
+            await _repo.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new ConflictException($"Room {id} cannot be deleted because it has existing bookings", ex);
+        }
         return true;
     }
 
