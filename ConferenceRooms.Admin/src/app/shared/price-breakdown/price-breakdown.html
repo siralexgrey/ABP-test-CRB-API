@@ -1,0 +1,38 @@
+<table>
+  <thead>
+    <tr>
+      <th>From</th>
+      <th>To</th>
+      <th class="num">Hours</th>
+      <th class="num">Multiplier</th>
+      <th class="num">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (segment of breakdown().segments; track $index) {
+      <tr>
+        <td>{{ segment.start | date: 'MMM d, HH:mm' }}</td>
+        <td>{{ segment.end | date: 'MMM d, HH:mm' }}</td>
+        <td class="num">{{ segment.hours | number: '1.0-2' }}</td>
+        <td class="num">&times;{{ segment.multiplier | number: '1.2-2' }}</td>
+        <td class="num">{{ segment.amount | number: '1.0-2' }}</td>
+      </tr>
+    }
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="4">Rental</td>
+      <td class="num">{{ breakdown().rentalTotal | number: '1.0-2' }}</td>
+    </tr>
+    <tr>
+      <td colspan="4">Services</td>
+      <td class="num">{{ breakdown().servicesTotal | number: '1.0-2' }}</td>
+    </tr>
+    <tr>
+      <td colspan="4"><strong>Total</strong></td>
+      <td class="num">
+        <strong>{{ breakdown().total | number: '1.0-2' }}</strong>
+      </td>
+    </tr>
+  </tfoot>
+</table>

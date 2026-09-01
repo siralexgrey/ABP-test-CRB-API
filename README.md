@@ -215,6 +215,24 @@ doesn't retroactively alter an existing booking.
 
 ---
 
+## Angular admin (optional, not in the brief)
+
+`ConferenceRooms.Admin/` is a small Angular 21 admin UI over this API — rooms CRUD,
+availability search, booking creation with the price breakdown, and the revenue
+report. It is outside the task scope; it's there to drive the API from a browser.
+
+```bash
+dotnet run --launch-profile https --project ConferenceRooms.Api   # terminal 1 — https://localhost:7265
+cd ConferenceRooms.Admin && npm install && npm start              # terminal 2 — http://localhost:4200
+```
+
+The dev server proxies `/api/*` to the API (`ConferenceRooms.Admin/proxy.conf.json`,
+target `https://localhost:7265`, `secure: false`), so no CORS policy is added to the
+API. Run HTTP-only instead? Point the proxy at `http://localhost:5006`. Detail in
+`ConferenceRooms.Admin/README.md`.
+
+---
+
 ## Next steps
 
 - Second report: room utilization (%) over a period.

@@ -1,0 +1,21 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      Conference Rooms
+      <span>Admin</span>
+    </div>
+    <nav>
+      <a routerLink="/rooms" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        Rooms
+      </a>
+      <a routerLink="/rooms/new" routerLinkActive="active">New room</a>
+      <a routerLink="/availability" routerLinkActive="active">Availability</a>
+      <a routerLink="/bookings/new" routerLinkActive="active">New booking</a>
+      <a routerLink="/reports/revenue" routerLinkActive="active">Revenue report</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

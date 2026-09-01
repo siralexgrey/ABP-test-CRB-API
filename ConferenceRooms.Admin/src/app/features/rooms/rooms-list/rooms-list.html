@@ -1,0 +1,62 @@
+<div class="page-head">
+  <div>
+    <h1>Rooms</h1>
+    <p class="subtitle">All conference rooms and their per-room services.</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/rooms/new">+ New room</a>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+<div class="card">
+  @if (rooms() === null) {
+    @if (!error()) {
+      <div class="loading">Loading…</div>
+    }
+  } @else if (rooms()!.length === 0) {
+    <p class="muted">No rooms yet. Create the first one.</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th class="num">Capacity</th>
+          <th class="num">Base / hour</th>
+          <th>Services</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (room of rooms(); track room.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/rooms', room.id]">{{ room.name }}</a>
+            </td>
+            <td class="num">{{ room.capacity }}</td>
+            <td class="num">{{ room.basePricePerHour | number: '1.0-2' }}</td>
+            <td>
+              @for (service of room.services; track service.id) {
+                <span class="chip">{{ service.name }} · {{ service.price | number: '1.0-2' }}</span>
+              } @empty {
+                <span class="muted">—</span>
+              }
+            </td>
+            <td class="num">
+              @if (pendingDelete() === room.id) {
+                <button class="btn btn-sm btn-danger" (click)="remove(room)">Confirm</button>
+                <button class="btn btn-sm" (click)="pendingDelete.set(null)">Cancel</button>
+              } @else {
+                <a class="btn btn-sm" [routerLink]="['/rooms', room.id]">Edit</a>
+                <button class="btn btn-sm btn-danger" (click)="pendingDelete.set(room.id)">
+                  Delete
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

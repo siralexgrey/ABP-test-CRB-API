@@ -1,0 +1,79 @@
+<div class="page-head">
+  <div>
+    <h1>Availability</h1>
+    <p class="subtitle">Rooms with enough capacity and no booking overlapping the window.</p>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+<div class="card">
+  <form [formGroup]="form" (ngSubmit)="search()">
+    <div class="form-grid">
+      <div class="field">
+        <label for="start">Start</label>
+        <input id="start" type="datetime-local" formControlName="start" />
+      </div>
+      <div class="field">
+        <label for="end">End</label>
+        <input id="end" type="datetime-local" formControlName="end" />
+      </div>
+      <div class="field">
+        <label for="minCap">Min capacity</label>
+        <input id="minCap" type="number" min="1" formControlName="minCapacity" />
+      </div>
+    </div>
+    @if (windowHours() !== null) {
+      <p class="hint">Window is {{ windowHours() | number: '1.0-2' }} h.</p>
+    }
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="searching()">
+        {{ searching() ? 'Searching…' : 'Search' }}
+      </button>
+    </div>
+  </form>
+</div>
+
+@if (results() !== null) {
+  <div class="card">
+    <h2>{{ results()!.length }} room(s) available</h2>
+    @if (results()!.length > 0) {
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="num">Capacity</th>
+            <th class="num">Base / hour</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (room of results(); track room.id) {
+            <tr>
+              <td>{{ room.name }}</td>
+              <td class="num">{{ room.capacity }}</td>
+              <td class="num">{{ room.basePricePerHour | number: '1.0-2' }}</td>
+              <td class="num">
+                <a
+                  class="btn btn-sm btn-primary"
+                  [routerLink]="['/bookings/new']"
+                  [queryParams]="{
+                    roomId: room.id,
+                    start: form.controls.start.value,
+                    end: form.controls.end.value,
+                  }"
+                >
+                  Book
+                </a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="muted">Nothing matches. Try a wider window or a lower capacity.</p>
+    }
+  </div>
+}

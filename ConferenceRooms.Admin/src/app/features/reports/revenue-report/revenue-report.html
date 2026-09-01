@@ -1,0 +1,87 @@
+<div class="page-head">
+  <div>
+    <h1>Revenue report</h1>
+    <p class="subtitle">
+      Bookings whose start time falls in [from, to). Total plus per-room and per-service breakdown.
+    </p>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+<div class="card">
+  <form [formGroup]="form" (ngSubmit)="run()">
+    <div class="form-grid">
+      <div class="field">
+        <label for="from">From</label>
+        <input id="from" type="date" formControlName="from" />
+      </div>
+      <div class="field">
+        <label for="to">To</label>
+        <input id="to" type="date" formControlName="to" />
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="loading()">
+        {{ loading() ? 'Running…' : 'Run report' }}
+      </button>
+    </div>
+  </form>
+</div>
+
+@if (report(); as data) {
+  <div class="card">
+    <p class="subtitle">Total revenue</p>
+    <div class="stat">{{ data.total | number: '1.0-2' }}</div>
+  </div>
+
+  <div class="card">
+    <h2>By room</h2>
+    @if (data.byRoom.length > 0) {
+      <table>
+        <thead>
+          <tr>
+            <th>Room</th>
+            <th class="num">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of data.byRoom; track row.roomId) {
+            <tr>
+              <td>{{ row.roomName }}</td>
+              <td class="num">{{ row.amount | number: '1.0-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="muted">No bookings in this period.</p>
+    }
+  </div>
+
+  <div class="card">
+    <h2>By service</h2>
+    @if (data.byService.length > 0) {
+      <table>
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th class="num">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of data.byService; track row.roomServiceId) {
+            <tr>
+              <td>{{ row.name }}</td>
+              <td class="num">{{ row.amount | number: '1.0-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="muted">No add-on services sold in this period.</p>
+    }
+  </div>
+}

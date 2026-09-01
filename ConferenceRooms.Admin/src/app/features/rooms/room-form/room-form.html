@@ -1,0 +1,105 @@
+<div class="page-head">
+  <div>
+    <h1>{{ isEdit() ? 'Edit room' : 'New room' }}</h1>
+    <p class="subtitle">
+      @if (isEdit()) {
+        Update the room’s details, or add a service below.
+      } @else {
+        Scalar fields only — services are added once the room exists.
+      }
+    </p>
+  </div>
+  <a class="btn" routerLink="/rooms">← Rooms</a>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+@if (savedOnce() && !error()) {
+  <div class="alert alert-ok">Saved.</div>
+}
+
+@if (loading()) {
+  <div class="card"><div class="loading">Loading…</div></div>
+} @else {
+  <div class="card">
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="form-grid">
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" type="text" formControlName="name" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <span class="error">Name is required (max 200 characters).</span>
+          }
+        </div>
+        <div class="field">
+          <label for="capacity">Capacity</label>
+          <input id="capacity" type="number" min="1" formControlName="capacity" />
+          @if (form.controls.capacity.touched && form.controls.capacity.invalid) {
+            <span class="error">Capacity must be at least 1.</span>
+          }
+        </div>
+        <div class="field">
+          <label for="price">Base price / hour</label>
+          <input id="price" type="number" min="0" step="0.01" formControlName="basePricePerHour" />
+          @if (form.controls.basePricePerHour.touched && form.controls.basePricePerHour.invalid) {
+            <span class="error">Price must be zero or more.</span>
+          }
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : isEdit() ? 'Save changes' : 'Create room' }}
+        </button>
+        <a class="btn" routerLink="/rooms">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  @if (isEdit()) {
+    <div class="card">
+      <h2>Services</h2>
+      @if (room(); as current) {
+        @if (current.services.length > 0) {
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th class="num">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (service of current.services; track service.id) {
+                <tr>
+                  <td>{{ service.name }}</td>
+                  <td class="num">{{ service.price | number: '1.0-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="muted">No services on this room yet.</p>
+        }
+      }
+
+      <form class="mt" [formGroup]="serviceForm" (ngSubmit)="addService()">
+        <div class="form-grid">
+          <div class="field">
+            <label for="svc-name">Service name</label>
+            <input id="svc-name" type="text" formControlName="name" />
+          </div>
+          <div class="field">
+            <label for="svc-price">Price</label>
+            <input id="svc-price" type="number" min="0" step="0.01" formControlName="price" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn" [disabled]="serviceForm.invalid">Add service</button>
+        </div>
+        <p class="hint">
+          The API exposes no remove-service endpoint, so services can only be added.
+        </p>
+      </form>
+    </div>
+  }
+}

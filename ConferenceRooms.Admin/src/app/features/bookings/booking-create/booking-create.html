@@ -1,0 +1,111 @@
+<div class="page-head">
+  <div>
+    <h1>New booking</h1>
+    <p class="subtitle">Create a booking and see its tariff-zone price breakdown.</p>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+<div class="card">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-grid">
+      <div class="field">
+        <label for="room">Room</label>
+        <select id="room" formControlName="roomId">
+          <option [ngValue]="0" disabled>— select a room —</option>
+          @for (room of rooms(); track room.id) {
+            <option [ngValue]="room.id">
+              {{ room.name }} · cap {{ room.capacity }} · {{ room.basePricePerHour }}/h
+            </option>
+          }
+        </select>
+        @if (form.controls.roomId.touched && form.controls.roomId.invalid) {
+          <span class="error">Pick a room.</span>
+        }
+      </div>
+      <div class="field">
+        <label for="start">Start</label>
+        <input id="start" type="datetime-local" formControlName="startTime" />
+      </div>
+      <div class="field">
+        <label for="dur">Duration (hours)</label>
+        <input
+          id="dur"
+          type="number"
+          min="0.25"
+          max="24"
+          step="0.25"
+          formControlName="durationHours"
+        />
+        <span class="hint">Sent as {{ previewDuration() }}.</span>
+      </div>
+    </div>
+
+    @if (selectedRoom(); as room) {
+      @if (room.services.length > 0) {
+        <div class="field">
+          <label>Services</label>
+          <div class="checks">
+            @for (service of room.services; track service.id) {
+              <label class="check">
+                <input
+                  type="checkbox"
+                  [checked]="isServiceSelected(service.id)"
+                  (change)="toggleService(service.id, $any($event.target).checked)"
+                />
+                {{ service.name }} · {{ service.price | number: '1.0-2' }}
+              </label>
+            }
+          </div>
+        </div>
+      }
+    }
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+        {{ submitting() ? 'Booking…' : 'Create booking' }}
+      </button>
+    </div>
+  </form>
+</div>
+
+@if (created(); as booking) {
+  <div class="card">
+    <div class="alert alert-ok">Booking #{{ booking.id }} created.</div>
+    <h2>
+      {{ booking.startTime | date: 'MMM d, HH:mm' }} –
+      {{ booking.endTime | date: 'MMM d, HH:mm' }}
+    </h2>
+    <app-price-breakdown [breakdown]="booking.priceBreakdown" />
+  </div>
+}
+
+<div class="card">
+  <h2>Look up a booking</h2>
+  <form [formGroup]="lookupForm" (ngSubmit)="runLookup()">
+    <div class="form-grid">
+      <div class="field">
+        <label for="lookup-id">Booking id</label>
+        <input id="lookup-id" type="number" min="1" formControlName="id" />
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn">Fetch</button>
+    </div>
+  </form>
+
+  @if (lookupError()) {
+    <div class="alert alert-error mt">{{ lookupError() }}</div>
+  }
+  @if (lookup(); as booking) {
+    <h2 class="mt">
+      Booking #{{ booking.id }} · room {{ booking.roomId }} ·
+      {{ booking.startTime | date: 'MMM d, HH:mm' }} –
+      {{ booking.endTime | date: 'MMM d, HH:mm' }}
+    </h2>
+    <app-price-breakdown [breakdown]="booking.priceBreakdown" />
+  }
+</div>
