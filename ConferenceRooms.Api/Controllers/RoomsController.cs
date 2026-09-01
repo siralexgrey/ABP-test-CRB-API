@@ -31,9 +31,9 @@ public class RoomsController : ControllerBase
 
     // GET: api/rooms/available?start={start}&end={end}&minCapacity={minCapacity}
     [HttpGet("available")]
-    public async Task<ActionResult<List<RoomDto>>> GetAvailable([FromQuery] DateTime start, [FromQuery] DateTime end, [FromQuery] int minCapacity)
+    public async Task<ActionResult<List<RoomDto>>> GetAvailable([FromQuery] AvailabilityQuery query)
     {
-        return await _service.GetAvailableAsync(start, end, minCapacity);
+        return await _service.GetAvailableAsync(query.Start.Value, query.End.Value, query.MinCapacity.Value); // [Required] in DTO guarantees non-null
     }
 
     // POST: api/rooms
